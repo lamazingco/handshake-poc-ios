@@ -12,17 +12,16 @@ import CoreMotion
 
 class ViewController: UIViewController
 {
+    let lastAx = Double()
+    let lastAy = Double()
+    let lastAz = Double()
     let motionManager = CMMotionManager()
     let shaker = ShakeDetector()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        motionManager.gyroUpdateInterval = 0.5
-        
-        let str = "1234567"
-        
-        print("onSensorChanged: timestamp ns: \(str) ax=\(str) ay=\(str) az=\(str)")
+        motionManager.gyroUpdateInterval = 0.01
         
         motionManager.startGyroUpdates(to: OperationQueue.current!)
         {
@@ -31,8 +30,14 @@ class ViewController: UIViewController
             if let data = data
             {
                 self.shaker.addMotion(data: data)
+                let diffAx = data.rotationRate.x - self.lastAx
+                let diffAy = data.rotationRate.y - self.lastAy
+                let diffAz = data.rotationRate.z - self.lastAz
                 
-                print("onSensorChanged: timestamp ns: \(data.timestamp) ax=\(data.rotationRate.x) ay=\(data.rotationRate.y) az=\(data.rotationRate.z)")
+                if diffAx > 1 || diffAy > 1 || diffAz > 1 {
+                    print("onSensorChanged: timestamp ns: \(data.timestamp) ax=\(data.rotationRate.x) ay=\(data.rotationRate.y) az=\(data.rotationRate.z)")
+                }
+                
             }
         }
     }
